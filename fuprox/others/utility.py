@@ -30,7 +30,8 @@ from fuprox.models.models import (Booking, BookingSchema, ServiceOffered, Servic
                                   Branch, BranchSchema, Teller, TellerSchema, TellerBooking, TellerBookingSchema,
                                   OnlineBooking, OnlineBookingSchema, Icon, IconSchema, Company, CompanySchema,
                                   Service, ServiceSchema, Customer, CustomerSchema, BookingTimes,
-                                  BookingTimesSchema, Video, VideoSchema, Phrase, PhraseSchema)
+                                  BookingTimesSchema, Video, VideoSchema, Phrase, PhraseSchema, DepartmentServiceSchema,
+                                  Department, DepartmentService, DepartmentSchema)
 
 # end
 
@@ -91,6 +92,13 @@ booking_times = BookingTimesSchema(many=True)
 
 video_schema = VideoSchema()
 videos_schema = VideoSchema(many=True)
+
+department_schema = DepartmentSchema()
+departments_schema = DepartmentSchema(many=True)
+
+department_service_schema = DepartmentServiceSchema()
+departments_service_schema = DepartmentServiceSchema(many=True)
+
 
 
 def is_my_branch(key):
@@ -218,6 +226,7 @@ def get_last_ticket(teller_number):
     # any entry forwarding entries shall have an empty entry
     # if not closed and active then it should be unser service
 '''
+
 
 def is_kickback(this_teller, teller_to):
     print(this_teller, teller_to)
@@ -2716,7 +2725,7 @@ def avg_time(service):
 def seconds_to_min_sec(seconds):
     import time
     h, m, s = (time.strftime('%H:%M:%S', time.gmtime(seconds))).split(":")
-    print(h,"-",m,"-",s)
+    print(h, "-", m, "-", s)
     return {"hours": h, "minutes": m, "seconds": s}
 
 
@@ -3151,3 +3160,35 @@ def date_suffix(day):
     else:
         suffix = ["st", "nd", "rd"][day % 10 - 1]
     return suffix
+
+
+"""Dept functions """
+
+
+def add_dept(name):
+    final = False
+    if not get_dept_by_name(name):
+        branch = Branch.query.first()
+        lookup = Department(name, branch.unique_id)
+        db.session.add(lookup)
+        db.session.commit()
+        final = department_schema.dump(lookup)
+    return final
+
+
+def department_exists(unique_id):
+    return Department.query.filter_by(unique_id=unique_id).first()
+
+def get_dept_by_name(name):
+    return  Department.query.filter_by(name=name).first()
+
+def bind_service_to_dept(service_unique_id,name):
+    final = False
+    dept = get_dept_by_name(name=name)
+    if service_unique_id(service_unique_id) and dept:
+        if department_exists(name.unique_id):
+            lookup = DepartmentService(dept.unique_id,service_unique_id)
+            db.session.add(lookup)
+            db.session.commit()
+            final = department_service_schema.dump(lookup)
+    return final

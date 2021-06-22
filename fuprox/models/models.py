@@ -527,12 +527,11 @@ class Department(db.Model):
     FOR Teller, ServiceOffered, Icon
     """
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(length=250), unique=midnight)
+    name = db.Column(db.String(length=250), unique=True)
     branch = db.ForeignKey("branch.key_", nullable=False, unique=True)
     date_added = db.Column(db.DateTime, default=datetime.now)
     active = db.Column(db.Boolean, default=True)
     unique_id = db.Column(db.String(250), default=unique_code, unique=True)
-
 
     def __init__(self, name, branch):
         self.name = name
@@ -542,4 +541,21 @@ class Department(db.Model):
 class DepartmentSchema(ma.Schema):
     class Meta:
         fields = ("id", "name", "branch", "date_added", "active", "unique_id")
+
+
+class DepartmentService(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    department_id = db.Column(db.ForeignKey('department.unique_id'), nullable=False)
+    service_id = db.Column(db.ForeignKey("service_offered.unique_id"), nullable=False)
+
+    def __init__(self, department_id, service_id):
+        self.department_id = department_id
+        self.service_id = service_id
+
+
+class DepartmentServiceSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "department_id", "service_id")
+
+
 
