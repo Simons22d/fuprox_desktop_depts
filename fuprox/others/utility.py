@@ -100,7 +100,6 @@ department_service_schema = DepartmentServiceSchema()
 departments_service_schema = DepartmentServiceSchema(many=True)
 
 
-
 def is_my_branch(key):
     branch = Branch.query.filter_by(key_=key).first()
     return branch
@@ -3176,19 +3175,44 @@ def add_dept(name):
     return final
 
 
-def department_exists(unique_id):
+def dept_by_unique_id(unique_id):
     return Department.query.filter_by(unique_id=unique_id).first()
 
-def get_dept_by_name(name):
-    return  Department.query.filter_by(name=name).first()
 
-def bind_service_to_dept(service_unique_id,name):
+def get_dept_by_name(name):
+    return Department.query.filter_by(name=name).first()
+
+
+def bind_service_to_dept(service_unique_id, name):
     final = False
     dept = get_dept_by_name(name=name)
     if service_unique_id(service_unique_id) and dept:
-        if department_exists(name.unique_id):
-            lookup = DepartmentService(dept.unique_id,service_unique_id)
+        if dept_by_unique_id(name.unique_id):
+            lookup = DepartmentService(dept.unique_id, service_unique_id)
             db.session.add(lookup)
             db.session.commit()
             final = department_service_schema.dump(lookup)
     return final
+
+
+def unbind_dept_to_service(service_unique_id, dept_unique_id):
+    final = False
+    bond = service_dept_bind_exists(service_unique_id, dept_unique_id)
+    if bond:
+        db.session.delete(bond)
+        db.session.commit()
+        final = True
+    return final
+
+
+def service_dept_bind_exists(service_unique_id, dept_unique_id):
+    return DepartmentService.query.filter_by(department_id=dept_unique_id).filter_by(
+        service_id=service_unique_id).first()
+
+
+def service_by_name(name):
+    return ServiceOffered.query.filter_by(name=name).first()
+
+
+def service_by_unique_id(unique_id):
+    return ServiceOffered.query.filter_by(unique_id=unique_id).first()
