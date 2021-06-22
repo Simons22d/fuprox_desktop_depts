@@ -6,7 +6,7 @@ from dateutil import parser
 import random
 
 
-def ticket_unique() -> int:
+def unique_code() -> int:
     return secrets.token_hex(32)
 
 
@@ -32,7 +32,7 @@ class ServiceOffered(db.Model):
     code = db.Column(db.String(length=10), nullable=False, unique=True)
     icon = db.Column(db.String(length=20))
     is_synced = db.Column(db.Boolean, default=False)
-    unique_id = db.Column(db.String(250), default=ticket_unique, unique=True)
+    unique_id = db.Column(db.String(250), default=unique_code, unique=True)
     medical_active = db.Column(db.Boolean, default=False)
     active = db.Column(db.Boolean, default=True)
 
@@ -68,7 +68,7 @@ class Booking(db.Model):
     is_instant = db.Column(db.Boolean, default=False)
     forwarded = db.Column(db.Boolean, default=False)
     is_synced = db.Column(db.Boolean, default=False)
-    unique_id = db.Column(db.String(250), default=ticket_unique, unique=True)
+    unique_id = db.Column(db.String(250), default=unique_code, unique=True)
     unique_teller = db.Column(db.String(250), default=000)
     verify = db.Column(db.Integer, default=verify_token)
 
@@ -218,7 +218,7 @@ class Teller(db.Model):
     date_added = db.Column(db.DateTime, default=datetime.now)
     branch = db.Column(db.Integer)
     service = db.Column(db.String(200))
-    unique_id = db.Column(db.String(250), default=ticket_unique, unique=True)
+    unique_id = db.Column(db.String(250), default=unique_code, unique=True)
     is_synced = db.Column(db.Boolean, default=False)
     branch_unique_id = db.Column(db.String(length=250), nullable=False, default=1234)
     active = db.Column(db.Boolean, default=True)
@@ -522,14 +522,24 @@ class ResetOptionSchema(ma.Schema):
         fields = ("id", "time", "branch", "date_added", "active")
 
 
+class Department(db.Model):
+    """
+    FOR Teller, ServiceOffered, Icon
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(length=250), unique=midnight)
+    branch = db.ForeignKey("branch.key_", nullable=False, unique=True)
+    date_added = db.Column(db.DateTime, default=datetime.now)
+    active = db.Column(db.Boolean, default=True)
+    unique_id = db.Column(db.String(250), default=unique_code, unique=True)
 
-# class Log(db.Model):
-#     id = db.Column(db.Integer, primary_key=True)
-#     log_id = db.Column(db.String(length=250), unique=ticket_unique())
-#     branch = db.ForeignKey("branch.key_", nullable=False, unique=True)
-#     date_added = db.Column(db.DateTime, default=datetime.now)
-#
-#
-# class LogSchema(ma.Schema):
-#     class Meta:
-#         fields = ("id", "log_id", "branch", "date_added")
+
+    def __init__(self, name, branch):
+        self.name = name
+        self.branch = branch
+
+
+class DepartmentSchema(ma.Schema):
+    class Meta:
+        fields = ("id", "name", "branch", "date_added", "active", "unique_id")
+
