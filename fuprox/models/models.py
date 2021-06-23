@@ -546,7 +546,7 @@ class DepartmentSchema(ma.Schema):
 class DepartmentService(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     department_id = db.Column(db.ForeignKey('department.unique_id'), nullable=False)
-    service_id = db.Column(db.ForeignKey("service_offered.unique_id"), nullable=False)
+    service_id = db.Column(db.ForeignKey("service_offered.unique_id"), nullable=False, unique=True)
 
     def __init__(self, department_id, service_id):
         self.department_id = department_id

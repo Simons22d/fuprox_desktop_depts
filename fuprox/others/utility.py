@@ -130,8 +130,7 @@ def generate_ticket(booking_id):
 
 def get_next_instant_service_ticket_by_date(service_name):
     lookup = Booking.query.filter_by(service_name=service_name).filter_by(is_instant=True).filter_by(
-        nxt=1001).filter_by(serviced=False). \
-        order_by(Booking.date_added.asc()).first()
+        nxt=1001).filter_by(serviced=False).order_by(Booking.date_added.asc()).first()
     booking_data = booking_schema.dump(lookup)
     return booking_data
 
@@ -1747,12 +1746,6 @@ def send_mail(_to, subject, body):
 def upgrade_ticket():
     # require payment
     # get booking id an queue it next
-    pass
-
-
-def get_teller_tickets(teller):
-    for_the_service = get_bookings_for_the_service(teller)
-    forwarded_for_the_service = get_bookings_forwarded_teller()
     pass
 
 

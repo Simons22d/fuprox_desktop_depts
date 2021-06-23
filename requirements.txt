@@ -19,7 +19,6 @@ Flask-Migrate==2.7.0
 Flask-SocketIO==4.3.2
 Flask-SQLAlchemy==2.5.1
 GlobalPayments.Api==1.0.5
-greenlet==1.0.0
 idna==2.10
 importlib-metadata==3.4.0
 itsdangerous==1.1.0
